@@ -1,0 +1,243 @@
+question,sql,models_answer,is_exact
+What are the available names in the accounts table,SELECT name FROM public.account_account; ,SELECT name FROM public.account_account;,True
+"What are the hr departments, show some of stored hr departments",select name from hr_department,SELECT name FROM hr_department LIMIT 5;,False
+What is meant by the R&D USA department,select complete_name from hr_department where name = 'R&D USA';,"I encountered an error while processing your question: invalid input syntax for type json
+LINE 3: WHERE name = 'R&D USA';
+                     ^
+DETAIL:  Token ""R"" is invalid.
+CONTEXT:  JSON data, line 1: R...
+
+
+Tip: Make sure your question is related to the data the model has knowledge about.",False
+"Is the R&D USA department working?, what is the status of the R&D USA department?",select active from hr_department where lower(name) = lower('R&D USA') or lower(complete_name) = lower('R&D USA');,"I encountered an error while processing your question: invalid input syntax for type json
+LINE 3: WHERE name = 'R&D USA';
+                     ^
+DETAIL:  Token ""R"" is invalid.
+CONTEXT:  JSON data, line 1: R...
+
+
+Tip: Make sure your question is related to the data the model has knowledge about.",False
+"How many sales orders are there?, What is th count of the sales orders?",select count(*) from sale_order where state = 'sale';,select count(*) from sale_order where state = 'sale';,True
+"How many draft orders are there?, What is th count of the incomplete orders?",select count(*) from sale_order where state = 'draft';,SELECT COUNT(*) FROM sale_order WHERE state != 'done';,False
+"What is our biggest order?, what is the order that generated the most revenue?","select id , amount_total from sale_order order by amount_total desc limit 1","SELECT id AS order_id, amount_total AS revenue_generated 
+FROM purchase_order 
+ORDER BY amount_total DESC 
+LIMIT 1;",False
+What are the product templates that exist in the product table and does not exist in the product template table,"SELECT product_tmpl_id , pt.id from public.product_product pp right outer join public.product_template pt on pp.product_tmpl_id = pt.id where pt.id is null","SELECT DISTINCT product_id
+FROM public.stock_move
+WHERE product_id NOT IN (
+    SELECT id
+    FROM public.product_template
+);",False
+What is the latest operation on our stock?,select * from public.stock_move order by write_date desc;,select * from public.stock_move order by write_date desc limit 1;,False
+show the distribution of stock operations,"select state , count(*) as stateCount from public.stock_move group by state","select state, count(*) as operation_count 
+from public.stock_move 
+group by state;",False
+How many active users are there?,SELECT * FROM public.res_users where active = 'true';,SELECT COUNT(*) FROM public.res_users WHERE active = true;,False
+"Show the distribution of the notification methods or notification type of each user, what is the notification type of different users","select notification_type , count(*) as countOfNotificationMethod from public.res_users group by notification_type;","SELECT notification_type, COUNT(*) as user_count
+FROM public.res_users
+GROUP BY notification_type;",False
+"Show the user from recent user to the older user, show a sample of our users and show them from latest one to older ones",select * from public.res_users order by write_date desc;,SELECT * FROM public.res_users ORDER BY create_date DESC;,False
+"Show a sample of our projects, what are our available projects",SELECT name#>'{en_US}'  FROM public.project_project;,SELECT name FROM public.project_project;,False
+"Show all the active projects, is there any active projects, what are the ongoing projects",select * from public.project_project where active = 'true';,"SELECT COUNT(*)
+FROM public.project_project 
+WHERE active = true 
+AND date_start <= CURRENT_DATE 
+AND (date IS NULL OR date >= CURRENT_DATE);",False
+How many leads were created in the last 30 days?,SELECT COUNT(*) AS leads_last_30_days FROM crm_lead WHERE create_date >= CURRENT_DATE - INTERVAL '30 days';,"SELECT COUNT(*) AS leads_last_30_days 
+FROM crm_lead 
+WHERE create_date >= CURRENT_DATE - INTERVAL '30 days';",True
+What is the total expected revenue from open leads?,SELECT SUM(expected_revenue) AS total_expected_revenue FROM crm_lead WHERE date_closed IS NULL;,"I generated this response: The tables provided do not contain the necessary information to determine the total expected revenue from open leads. The revenue calculations are typically based on opportunities or leads, but the schema shared does not include tables related to opportunities or leads. To generate a query to calculate the total expected revenue from open leads, the schema should include tables related to leads or opportunities with attributes such as expected revenue, lead status, and other relevant information.",False
+How many leads were closed successfully (won) vs lost?,"SELECT CASE WHEN probability = 100 THEN 'Won' WHEN probability = 0 THEN 'Lost' ELSE 'In Progress' END AS lead_status, COUNT(*) AS lead_count FROM crm_lead GROUP BY lead_status;","SELECT CASE WHEN s.is_won THEN 'Won' ELSE 'Lost' END AS lead_status, COUNT(l.id) AS lead_count
+FROM crm_lead l
+INNER JOIN crm_stage s ON l.stage_id = s.id
+WHERE l.date_closed IS NOT NULL
+GROUP BY lead_status;",False
+What is the average time (in days) to close a lead?,SELECT AVG(day_close) AS avg_days_to_close FROM crm_lead WHERE day_close IS NOT NULL;,SELECT AVG(day_close) AS avg_days_to_close FROM crm_lead WHERE day_close IS NOT NULL;,True
+Which salespersons have the highest number of leads?,"SELECT user_id, COUNT(*) AS lead_count FROM crm_lead GROUP BY user_id ORDER BY lead_count DESC LIMIT 5;","SELECT user_id, COUNT(*) AS lead_count 
+FROM crm_lead 
+GROUP BY user_id 
+ORDER BY lead_count DESC;",False
+What is the total recurring revenue by country?,"SELECT country_id, SUM(recurring_revenue) AS total_recurring_revenue FROM crm_lead GROUP BY country_id ORDER BY total_recurring_revenue DESC;","I generated this response: Since the provided tables and columns do not include information about recurring revenue or country-specific data, it is not possible to generate a query to calculate the total recurring revenue by country.",False
+What is the conversion rate of leads (won/total)?,"SELECT ROUND((SUM(CASE WHEN probability = 100 THEN 1 ELSE 0 END)::decimal / COUNT(*)) * 100, 2) AS conversion_rate_percent FROM crm_lead;","SELECT ROUND((SUM(CASE WHEN probability = 100 THEN 1 ELSE 0 END)::decimal / COUNT(*)) * 100, 2) AS conversion_rate_percent FROM crm_lead;",True
+How many leads are currently active and past their deadline?,SELECT COUNT(*) AS overdue_active_leads FROM crm_lead WHERE active = true AND date_deadline IS NOT NULL AND date_deadline < CURRENT_DATE;,"SELECT COUNT(*) AS overdue_active_leads 
+FROM crm_lead 
+WHERE active = true 
+AND date_deadline IS NOT NULL 
+AND date_deadline < CURRENT_DATE;",True
+What are the top 5 cities with the most leads?,"SELECT city, COUNT(*) AS lead_count FROM crm_lead GROUP BY city ORDER BY lead_count DESC LIMIT 5;","I generated this response: The `crm_lead` table does not have a `city` column based on the provided schema. Therefore, it is not possible to determine the top 5 cities with the most leads using the existing table structure.",False
+List all leads with sanitized phone numbers and valid emails.,"SELECT id, name, phone_sanitized, email_normalized FROM crm_lead WHERE phone_state = 'correct' AND email_state = 'correct';","SELECT id, name, phone_sanitized, email_normalized 
+FROM crm_lead 
+WHERE phone_sanitized IS NOT NULL AND email_normalized IS NOT NULL;",False
+What is the total amount for purchase order P00001?,SELECT amount_total FROM purchase_order WHERE name = 'P00001';,SELECT amount_total FROM purchase_order WHERE name = 'P00001';,True
+How many purchase orders are currently in draft state?,SELECT COUNT(*) FROM purchase_order WHERE state = 'draft';,SELECT COUNT(*) FROM public.purchase_order WHERE state = 'draft';,False
+What is the average total amount of all purchase orders?,SELECT AVG(amount_total) FROM purchase_order;,SELECT AVG(amount_total) FROM purchase_order;,True
+Which purchase order has the highest total amount?,"SELECT name, amount_total FROM purchase_order ORDER BY amount_total DESC LIMIT 1;","SELECT name, amount_total FROM purchase_order ORDER BY amount_total DESC LIMIT 1;",True
+List all purchase orders with total amount greater than 5000.,"SELECT name, amount_total FROM purchase_order WHERE amount_total > 5000;","SELECT name, amount_total 
+FROM public.purchase_order 
+WHERE amount_total > 5000;",False
+How many purchase orders have a tax amount greater than 0?,SELECT COUNT(*) FROM purchase_order WHERE amount_tax > 0;,SELECT COUNT(*) FROM purchase_order WHERE amount_tax > 0;,True
+What is the total untaxed amount across all purchase orders?,SELECT SUM(amount_untaxed) FROM purchase_order;,SELECT SUM(amount_untaxed) FROM purchase_order;,True
+What is the invoice status of purchase order P00002?,SELECT invoice_status FROM purchase_order WHERE name = 'P00002';,"SELECT invoice_status
+FROM public.purchase_order
+WHERE name = 'P00002';",False
+"Which purchase orders were approved after September 2, 2025?","SELECT name, date_approve FROM purchase_order WHERE date_approve > '2025-09-02';",SELECT name FROM public.purchase_order WHERE date_approve > '2025-09-02';,False
+Show all purchase orders created by user ID 1.,SELECT name FROM purchase_order WHERE create_uid = 1;,"SELECT name 
+FROM purchase_order 
+WHERE user_id = 1;",False
+Which purchase orders do not have a destination address?,SELECT name FROM purchase_order WHERE dest_address_id IS NULL;,"SELECT name 
+FROM public.purchase_order 
+WHERE dest_address_id IS NULL;",False
+"How many purchase orders were created on September 1, 2025?",SELECT COUNT(*) FROM purchase_order WHERE DATE(date_order) = '2025-09-01';,"SELECT COUNT(*) 
+FROM purchase_order 
+WHERE DATE(date_order) = '2025-09-01';",True
+List all distinct states of purchase orders.,SELECT DISTINCT state FROM purchase_order;,SELECT DISTINCT state FROM purchase_order;,True
+Which purchase orders have a non-null access token?,"SELECT name, access_token FROM purchase_order WHERE access_token IS NOT NULL;","SELECT name, access_token 
+FROM purchase_order 
+WHERE access_token IS NOT NULL;",True
+List purchase orders with currency rate not equal to 1.0.,"SELECT name, currency_rate FROM purchase_order WHERE currency_rate <> 1.0;",SELECT name FROM purchase_order WHERE currency_rate <> 1.0;,False
+How many purchase orders were written by user ID 1?,SELECT COUNT(*) FROM purchase_order WHERE write_uid = 1;,SELECT COUNT(*) FROM purchase_order WHERE write_uid = 1;,True
+Get total number of purchase orders per partner.,"SELECT partner_id, COUNT(*) FROM purchase_order GROUP BY partner_id;","SELECT partner_id, COUNT(*) AS total_purchase_orders 
+FROM purchase_order 
+GROUP BY partner_id;",False
+Which purchase orders have invoice count greater than 0?,"SELECT name, invoice_count FROM purchase_order WHERE invoice_count > 0;",SELECT name FROM purchase_order WHERE invoice_count > 0;,False
+List all purchase orders in the sent state.,SELECT name FROM purchase_order WHERE state = 'sent';,SELECT * FROM purchase_order WHERE state = 'sent';,False
+Which purchase orders were planned after the order date?,SELECT name FROM purchase_order WHERE date_planned > date_order;,"SELECT name 
+FROM purchase_order 
+WHERE date_planned > date_order;",True
+List all purchase orders with priority 0.,SELECT name FROM purchase_order WHERE priority = '0';,SELECT name FROM public.purchase_order WHERE priority = '0';,False
+Get the total number of purchase orders by invoice status.,"SELECT invoice_status, COUNT(*) FROM purchase_order GROUP BY invoice_status;","SELECT invoice_status, COUNT(*) FROM purchase_order GROUP BY invoice_status;",True
+Which purchase orders have notes?,SELECT name FROM purchase_order WHERE notes IS NOT NULL AND notes <> '';,"SELECT name, notes FROM purchase_order WHERE notes IS NOT NULL;",False
+Find the earliest effective date of any purchase order.,SELECT MIN(effective_date) FROM purchase_order;,SELECT MIN(effective_date) FROM purchase_order;,True
+List purchase orders where no mail flags are set to true.,SELECT name FROM purchase_order WHERE mail_reminder_confirmed = false AND mail_reception_confirmed = false AND (mail_reception_declined = false OR mail_reception_declined IS NULL);,"SELECT name 
+FROM purchase_order 
+WHERE mail_reminder_confirmed = false 
+AND mail_reception_confirmed = false 
+AND mail_reception_declined = false;",False
+Which purchase orders were confirmed by mail?,SELECT name FROM purchase_order WHERE mail_reminder_confirmed = true;,"SELECT name 
+FROM public.purchase_order 
+WHERE mail_reminder_confirmed = true OR mail_reception_confirmed = true OR mail_reception_declined = true;",False
+How many unique partners are associated with purchase orders?,SELECT COUNT(DISTINCT partner_id) FROM purchase_order;,SELECT COUNT(DISTINCT partner_id) FROM purchase_order;,True
+List purchase orders grouped by user ID.,"SELECT user_id, COUNT(*) FROM purchase_order GROUP BY user_id;","SELECT user_id, COUNT(*) FROM purchase_order GROUP BY user_id;",True
+Which purchase orders have the name starting with P0000?,SELECT name FROM purchase_order WHERE name LIKE 'P0000%';,SELECT name FROM purchase_order WHERE name LIKE 'P0000%';,True
+Which purchase orders have a null approval date?,SELECT name FROM purchase_order WHERE date_approve IS NULL;,"SELECT id, name FROM purchase_order WHERE date_approve IS NULL;",False
+How many purchase orders use incoterm ID 2?,SELECT COUNT(*) FROM purchase_order WHERE incoterm_id = 2;,SELECT COUNT(*) FROM purchase_order WHERE incoterm_id = 2;,True
+List purchase orders ordered by amount total descending.,"SELECT name, amount_total FROM purchase_order ORDER BY amount_total DESC;","SELECT name, price_total FROM purchase_order_line ORDER BY price_total DESC;",False
+What are the unique picking type IDs used?,SELECT DISTINCT picking_type_id FROM purchase_order;,SELECT DISTINCT picking_type_id FROM stock_move;,False
+"Which purchase orders have a planned date on or after September 4, 2025?",SELECT name FROM purchase_order WHERE date_planned >= '2025-09-04';,"SELECT name 
+FROM public.purchase_order 
+WHERE date_planned >= '2025-09-04';",False
+Which purchase orders have the currency ID equal to 1?,SELECT name FROM purchase_order WHERE currency_id = 1;,"SELECT name 
+FROM purchase_order 
+WHERE currency_id = 1;",True
+What are the different receipt statuses used?,SELECT DISTINCT receipt_status FROM purchase_order;,SELECT DISTINCT receipt_status FROM purchase_order;,True
+List all purchase orders where the origin is not specified.,SELECT name FROM purchase_order WHERE origin IS NULL OR origin = '';,SELECT name FROM public.purchase_order WHERE origin IS NULL OR origin = '';,False
+Which purchase orders were created by user 1 and are in draft state?,SELECT name FROM purchase_order WHERE create_uid = 1 AND state = 'draft';,"SELECT name 
+FROM purchase_order 
+WHERE user_id = 1 
+AND state = 'draft';",False
+How many purchase orders are associated with group ID 1?,SELECT COUNT(*) FROM purchase_order WHERE group_id = 1;,SELECT COUNT(*) FROM purchase_order WHERE group_id = 1;,True
+What is the total count of purchase orders with null group ID?,SELECT COUNT(*) FROM purchase_order WHERE group_id IS NULL;,SELECT COUNT(*) FROM purchase_order WHERE group_id IS NULL;,True
+What is the total quantity ordered for product ID 5?,SELECT SUM(product_qty) FROM purchase_order_line WHERE product_id = 5;,"SELECT SUM(product_uom_qty) AS total_quantity_ordered 
+FROM stock_move 
+WHERE product_id = 5;",False
+Which purchase order lines belong to order ID 1?,"SELECT id, name FROM purchase_order_line WHERE order_id = 1;","SELECT id, name FROM purchase_order_line WHERE order_id = 1;",True
+What is the total price for each purchase order line in order ID 2?,"SELECT id, name, price_total FROM purchase_order_line WHERE order_id = 2;","SELECT id, name, price_total FROM purchase_order_line WHERE order_id = 2;",True
+List all purchase order lines where the state is draft.,"SELECT id, name FROM purchase_order_line WHERE state = 'draft';","SELECT id, name 
+FROM purchase_order_line 
+WHERE state = 'draft';",True
+What is the average unit price of products across all purchase order lines?,SELECT AVG(price_unit) FROM purchase_order_line;,SELECT AVG(price_unit) FROM purchase_order_line;,True
+Which purchase order lines have a discount applied?,"SELECT id, name, discount FROM purchase_order_line WHERE discount IS NOT NULL AND discount > 0;","SELECT id, name 
+FROM purchase_order_line 
+WHERE discount IS NOT NULL;",False
+What is the total tax across all purchase order lines?,SELECT SUM(price_tax) FROM purchase_order_line;,SELECT SUM(price_tax) FROM purchase_order_line;,True
+How many units were received for product ID 6?,SELECT SUM(qty_received) FROM purchase_order_line WHERE product_id = 6;,"SELECT SUM(qty_received) 
+FROM purchase_order_line 
+WHERE product_id = 6;",True
+Which purchase order lines are downpayments?,"SELECT id, name FROM purchase_order_line WHERE is_downpayment = true;","SELECT id, name 
+FROM public.purchase_order_line
+WHERE is_downpayment = true;",False
+List all unique product IDs used in purchase order lines.,SELECT DISTINCT product_id FROM purchase_order_line WHERE product_id IS NOT NULL;,SELECT DISTINCT product_id FROM purchase_order_line;,False
+"Which purchase order lines have a planned date after September 3, 2025?","SELECT id, name FROM purchase_order_line WHERE date_planned > '2025-09-03';","SELECT id, name 
+FROM purchase_order_line 
+WHERE date_planned > '2025-09-03';",True
+What is the quantity to invoice for order ID 1?,SELECT SUM(qty_to_invoice) FROM purchase_order_line WHERE order_id = 1;,"SELECT qty_to_invoice 
+FROM sale_order_line 
+WHERE order_id = 1;",False
+Which purchase order lines have no tax?,"SELECT id, name FROM purchase_order_line WHERE price_tax = 0 OR price_tax IS NULL;","SELECT id, name 
+FROM public.purchase_order_line 
+WHERE price_tax = 0 OR price_tax IS NULL;",False
+What is the total price for product ID 32?,SELECT SUM(price_total) FROM purchase_order_line WHERE product_id = 32;,SELECT SUM(price_total) FROM purchase_order_line WHERE product_id = 32;,True
+How many purchase order lines were created by user ID 1?,SELECT COUNT(*) FROM purchase_order_line WHERE create_uid = 1;,SELECT COUNT(*) FROM purchase_order_line WHERE create_uid = 1;,True
+Which purchase order lines have a display type set?,"SELECT id, name, display_type FROM purchase_order_line WHERE display_type IS NOT NULL;","SELECT id, name, display_type 
+FROM purchase_order_line 
+WHERE display_type IS NOT NULL;",True
+List all purchase order lines with a null product packaging ID.,"SELECT id, name FROM purchase_order_line WHERE product_packaging_id IS NULL;","SELECT id, name 
+FROM purchase_order_line 
+WHERE product_packaging_id IS NULL;",True
+Which purchase order lines have more than 10 units ordered?,"SELECT id, name, product_qty FROM purchase_order_line WHERE product_qty > 10;","SELECT id, name, product_qty 
+FROM purchase_order_line 
+WHERE product_qty > 10;",True
+What is the subtotal price of each purchase order line in order ID 1?,"SELECT id, name, price_subtotal FROM purchase_order_line WHERE order_id = 1;","SELECT id, name, price_subtotal FROM purchase_order_line WHERE order_id = 1;",True
+"Which purchase order lines were written after September 1, 2025?","SELECT id, name FROM purchase_order_line WHERE write_date > '2025-09-01';","SELECT id, name FROM purchase_order_line WHERE write_date > '2025-09-01';",True
+What is the total quantity invoiced for product ID 33?,SELECT SUM(qty_invoiced) FROM purchase_order_line WHERE product_id = 33;,SELECT SUM(qty_invoiced) FROM purchase_order_line WHERE product_id = 33;,True
+List all purchase order lines with a product UOM ID of 1.,"SELECT id, name FROM purchase_order_line WHERE product_uom = 1;","SELECT id, name 
+FROM public.purchase_order_line 
+WHERE product_uom = 1;",False
+Which purchase order lines are associated with partner ID 9?,"SELECT id, name FROM purchase_order_line WHERE partner_id = 9;","SELECT id, name 
+FROM purchase_order_line 
+WHERE partner_id = 9;",True
+How many purchase order lines use the stock_moves method?,SELECT COUNT(*) FROM purchase_order_line WHERE qty_received_method = 'stock_moves';,SELECT COUNT(*) FROM public.purchase_order_line WHERE qty_received_method = 'stock_moves';,False
+What is the total value of products ordered (price_total)?,SELECT SUM(price_total) FROM purchase_order_line;,SELECT SUM(price_total) FROM sale_order_line;,False
+"Which purchase order lines have a planned date before September 3, 2025?","SELECT id, name FROM purchase_order_line WHERE date_planned < '2025-09-03';","SELECT id, name 
+FROM purchase_order_line 
+WHERE date_planned < '2025-09-03';",True
+List the names of all products ordered in purchase order ID 2.,SELECT name FROM purchase_order_line WHERE order_id = 2;,"SELECT sol.name
+FROM sale_order_line sol
+JOIN sale_order so ON sol.order_id = so.id
+WHERE so.id = 2;",False
+What is the average discount given across all lines?,SELECT AVG(discount) FROM purchase_order_line WHERE discount IS NOT NULL;,SELECT AVG(discount) FROM purchase_order_line;,False
+Which purchase order lines have product packaging quantity set?,"SELECT id, name, product_packaging_qty FROM purchase_order_line WHERE product_packaging_qty IS NOT NULL AND product_packaging_qty > 0;","SELECT id, name, product_packaging_qty 
+FROM purchase_order_line 
+WHERE product_packaging_qty IS NOT NULL;",False
+List all purchase order lines with a non-null product description variant.,"SELECT id, name, product_description_variants FROM purchase_order_line WHERE product_description_variants IS NOT NULL;","SELECT id, name, product_description_variants FROM purchase_order_line WHERE product_description_variants IS NOT NULL;",True
+Which purchase order lines have propagate_cancel set to true?,"SELECT id, name FROM purchase_order_line WHERE propagate_cancel = true;","SELECT id, name 
+FROM purchase_order_line 
+WHERE propagate_cancel = true;",True
+How many products were ordered in total across all lines?,SELECT SUM(product_qty) FROM purchase_order_line;,SELECT SUM(product_qty) FROM purchase_order_line;,True
+Which purchase order lines are linked to sale order ID 1?,"SELECT id, name FROM purchase_order_line WHERE sale_order_id = 1;","I generated this response: The provided tables do not have a direct link between purchase order lines and sale order lines. Without further information on how these tables are related, it is not possible to generate a SQL query to determine which purchase order lines are linked to sale order ID 1.",False
+Which purchase order lines have a null sale order ID?,"SELECT id, name FROM purchase_order_line WHERE sale_order_id IS NULL;","SELECT id, name FROM purchase_order_line WHERE sale_order_id IS NULL;",True
+How many units have been manually received?,SELECT SUM(qty_received_manual) FROM purchase_order_line;,SELECT SUM(qty_received_manual) FROM purchase_order_line;,True
+List all purchase order lines with product ID 33 and qty greater than 3.,"SELECT id, name FROM purchase_order_line WHERE product_id = 33 AND product_qty > 3;","SELECT id, name 
+FROM purchase_order_line 
+WHERE product_id = 33 AND product_qty > 3;",True
+"Which purchase order lines were created before September 2, 2025?","SELECT id, name FROM purchase_order_line WHERE create_date < '2025-09-02';","SELECT id, name 
+FROM public.purchase_order_line 
+WHERE create_date < '2025-09-02';",False
+Get the planned date for each purchase order line in order ID 1.,"SELECT id, name, date_planned FROM purchase_order_line WHERE order_id = 1;","SELECT id, name, date_planned FROM purchase_order_line WHERE order_id = 1;",True
+What is the maximum unit price across all purchase order lines?,SELECT MAX(price_unit) FROM purchase_order_line;,SELECT MAX(price_unit) FROM purchase_order_line;,True
+Which purchase order lines have a subtotal over 1000?,"SELECT id, name, price_subtotal FROM purchase_order_line WHERE price_subtotal > 1000;","SELECT id, name, price_subtotal 
+FROM purchase_order_line 
+WHERE price_subtotal > 1000;",True
+List all purchase order lines with zero quantity ordered.,"SELECT id, name FROM purchase_order_line WHERE product_qty = 0;","SELECT id, name 
+FROM public.purchase_order_line 
+WHERE product_qty = 0;",False
+What are all the stages in the CRM pipeline?,"SELECT id, name FROM public.crm_stage ORDER BY sequence;","SELECT id, name FROM public.crm_stage ORDER BY sequence;",True
+Which stages are marked as 'Won'?,"SELECT id, name FROM public.crm_stage WHERE is_won = true;","SELECT id, name FROM public.crm_stage WHERE is_won = true;",True
+What is the sequence order of the CRM stages?,"SELECT id, name, sequence FROM public.crm_stage ORDER BY sequence;","SELECT id, name, sequence 
+FROM public.crm_stage 
+ORDER BY sequence;",True
+Which stages are folded by default?,"SELECT id, name FROM public.crm_stage WHERE fold = true;","SELECT id, name 
+FROM public.crm_stage 
+WHERE fold = true;",True
+How many CRM stages are there?,SELECT COUNT(*) FROM public.crm_stage;,SELECT COUNT(*) FROM public.crm_stage;,True
+Which users created each stage?,"SELECT s.id, s.name, u.login AS created_by FROM public.crm_stage s JOIN public.res_users u ON s.create_uid = u.id;","I generated this response: The previous question was asking for the most recently created stage, not which users created each stage.",False
+Which stages have specific requirements filled in?,"SELECT id, name, requirements FROM public.crm_stage WHERE requirements IS NOT NULL AND requirements <> '';","SELECT id, name FROM public.crm_stage WHERE requirements IS NOT NULL AND requirements <> '';",False
+What is the most recently created stage?,"SELECT id, name, create_date FROM public.crm_stage ORDER BY create_date DESC LIMIT 1;","SELECT id, name, create_date
+FROM public.crm_stage
+ORDER BY create_date DESC
+LIMIT 1;",True
+Which stages were updated after creation?,"SELECT id, name, create_date, write_date FROM public.crm_stage WHERE write_date > create_date;","SELECT id, name 
+FROM public.crm_stage 
+WHERE write_date > create_date;",False
+Show all stages along with their team ID.,"SELECT id, name, team_id FROM public.crm_stage;","SELECT id, team_id FROM public.crm_stage;",False

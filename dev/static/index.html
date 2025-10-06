@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vanna Interface</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background: #f9f9f9; }
+    input, textarea, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 1rem; }
+    button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    .result, .sql { white-space: pre-wrap; margin-top: 15px; background: #fff; padding: 10px; border-left: 5px solid #007bff; }
+  </style>
+</head>
+<body>
+
+<h2>Vanna AI: Ask a Question</h2>
+<input type="text" id="question" placeholder="e.g., Show me total sales by customer">
+<button onclick="submitQuery()">Submit Question</button>
+<div class="sql" id="generated-sql"></div>
+<div class="result" id="query-result"></div>
+
+<h2 style="margin-top: 40px;">Train with SQL or DDL</h2>
+<textarea id="train-input" rows="5" placeholder="Paste SQL or DDL to train..."></textarea>
+<select id="train-type">
+  <option value="sql">SQL</option>
+  <option value="ddl">DDL</option>
+</select>
+<button onclick="submitTraining()">Train Vanna</button>
+<div class="result" id="train-result"></div>
+
+<script>
+const baseUrl = "/";
+
+async function submitQuery() {
+  const question = document.getElementById("question").value;
+  const res = await fetch(baseUrl + "query", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question })
+  });
+  const json = await res.json();
+  document.getElementById("generated-sql").innerText = "Generated SQL:\n" + (json.sql || json.error);
+  document.getElementById("query-result").innerText = "Result:\n" + JSON.stringify(json.result || json.error, null, 2);
+}
+
+async function submitTraining() {
+  const input = document.getElementById("train-input").value;
+  const type = document.getElementById("train-type").value;
+  const res = await fetch(baseUrl + "train", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ [type]: input })
+  });
+  const json = await res.json();
+  document.getElementById("train-result").innerText = "Training Response:\n" + JSON.stringify(json, null, 2);
+}
+</script>
+
+</body>
+</html>

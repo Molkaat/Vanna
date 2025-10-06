@@ -1,0 +1,167 @@
+data
+{
+   "model": "vanna-sql-query",
+   "messages": [
+      {
+         "role": "user",
+         "content": "Show all stages along with their team ID."
+      }
+   ]
+}
+messages
+{
+   "role": "user",
+   "content": "Show all stages along with their team ID."
+}
+model
+vanna-sql-query
+stream
+False
+user_messages
+{
+   "role": "user",
+   "content": "Show all stages along with their team ID."
+}
+System message
+question
+>>>>>>>>>>Show all stages along with their team ID.<<<<<<<<<<
+vn and question and not question.lower().startswith('hello')
+get_similar_question_sql
+EVAL
+{
+   "question": "Show all stages along with their team ID.",
+   "sql": "SELECT id, name, team_id FROM public.crm_stage;"
+}
+{
+   "question": "Which users created each stage?",
+   "sql": "SELECT s.id, s.name, u.login AS created_by FROM public.crm_stage s JOIN public.res_users u ON s.create_uid = u.id;"
+}
+get_related_ddl
+EVAL
+"\n        \n    CREATE TABLE IF NOT EXISTS public.crm_stage\n    (\n    id integer NOT NULL DEFAULT nextval('crm_stage_id_seq'::regclass),\n    sequence integer,\n    team_id integer,\n    create_uid integer,\n    write_uid integer,\n    name jsonb NOT NULL,\n    requirements text ,\n    is_won boolean,\n    fold boolean,\n    create_date timestamp without time zone,\n    write_date timestamp without time zone,\n    CONSTRAINT crm_stage_pkey PRIMARY KEY (id),\n    CONSTRAINT crm_stage_create_uid_fkey FOREIGN KEY (create_uid)\n        REFERENCES public.res_users (id) MATCH SIMPLE\n    ,\n    CONSTRAINT crm_stage_team_id_fkey FOREIGN KEY (team_id)\n        REFERENCES public.crm_team (id) MATCH SIMPLE\n    ,\n    CONSTRAINT crm_stage_write_uid_fkey FOREIGN KEY (write_uid)\n        REFERENCES public.res_users (id) MATCH SIMPLE\n    )\n    "
+"\n        CREATE TABLE IF NOT EXISTS public.project_project\n(\n    id integer NOT NULL DEFAULT nextval('project_project_id_seq'::regclass),\n    message_main_attachment_id integer,\n    alias_id integer NOT NULL,\n    sequence integer,\n    partner_id integer,\n    company_id integer NOT NULL,\n    analytic_account_id integer,\n    color integer,\n    user_id integer,\n    stage_id integer,\n    last_update_id integer,\n    create_uid integer,\n    write_uid integer,\n    access_token character varying ,\n    partner_email character varying ,\n    partner_phone character varying ,\n    privacy_visibility character varying  NOT NULL,\n    rating_status character varying  NOT NULL,\n    rating_status_period character varying  NOT NULL,\n    last_update_status character varying  NOT NULL,\n    date_start date,\n    date date,\n    name jsonb NOT NULL,\n    label_tasks jsonb,\n    task_properties_definition jsonb,\n    description text ,\n    active boolean,\n    allow_subtasks boolean,\n    allow_recurring_tasks boolean,\n    allow_task_dependencies boolean,\n    allow_milestones boolean,\n    rating_active boolean,\n    rating_request_deadline timestamp without time zone,\n    create_date timestamp without time zone,\n    write_date timestamp without time zone,\n    CONSTRAINT project_project_pkey PRIMARY KEY (id),\n    CONSTRAINT project_project_alias_id_fkey FOREIGN KEY (alias_id)\n        REFERENCES public.mail_alias (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_analytic_account_id_fkey FOREIGN KEY (analytic_account_id)\n        REFERENCES public.account_analytic_account (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_company_id_fkey FOREIGN KEY (company_id)\n        REFERENCES public.res_company (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_create_uid_fkey FOREIGN KEY (create_uid)\n        REFERENCES public.res_users (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_last_update_id_fkey FOREIGN KEY (last_update_id)\n        REFERENCES public.project_update (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_message_main_attachment_id_fkey FOREIGN KEY (message_main_attachment_id)\n        REFERENCES public.ir_attachment (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_partner_id_fkey FOREIGN KEY (partner_id)\n        REFERENCES public.res_partner (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_stage_id_fkey FOREIGN KEY (stage_id)\n        REFERENCES public.project_project_stage (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_user_id_fkey FOREIGN KEY (user_id)\n        REFERENCES public.res_users (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_write_uid_fkey FOREIGN KEY (write_uid)\n        REFERENCES public.res_users (id) MATCH SIMPLE\n,\n    CONSTRAINT project_project_project_date_greater CHECK (date >= date_start)\n)\n        "
+get_related_documentation
+EVAL
+System message IMPORTANT
+You are a PostgreSQL expert. Please help to generate a SQL query to answer the question. Your response should ONLY be based on the given context and follow the response guidelines and format instructions. 
+===Tables 
+
+        
+    CREATE TABLE IF NOT EXISTS public.crm_stage
+    (
+    id integer NOT NULL DEFAULT nextval('crm_stage_id_seq'::regclass),
+    sequence integer,
+    team_id integer,
+    create_uid integer,
+    write_uid integer,
+    name jsonb NOT NULL,
+    requirements text ,
+    is_won boolean,
+    fold boolean,
+    create_date timestamp without time zone,
+    write_date timestamp without time zone,
+    CONSTRAINT crm_stage_pkey PRIMARY KEY (id),
+    CONSTRAINT crm_stage_create_uid_fkey FOREIGN KEY (create_uid)
+        REFERENCES public.res_users (id) MATCH SIMPLE
+    ,
+    CONSTRAINT crm_stage_team_id_fkey FOREIGN KEY (team_id)
+        REFERENCES public.crm_team (id) MATCH SIMPLE
+    ,
+    CONSTRAINT crm_stage_write_uid_fkey FOREIGN KEY (write_uid)
+        REFERENCES public.res_users (id) MATCH SIMPLE
+    )
+    
+
+
+        CREATE TABLE IF NOT EXISTS public.project_project
+(
+    id integer NOT NULL DEFAULT nextval('project_project_id_seq'::regclass),
+    message_main_attachment_id integer,
+    alias_id integer NOT NULL,
+    sequence integer,
+    partner_id integer,
+    company_id integer NOT NULL,
+    analytic_account_id integer,
+    color integer,
+    user_id integer,
+    stage_id integer,
+    last_update_id integer,
+    create_uid integer,
+    write_uid integer,
+    access_token character varying ,
+    partner_email character varying ,
+    partner_phone character varying ,
+    privacy_visibility character varying  NOT NULL,
+    rating_status character varying  NOT NULL,
+    rating_status_period character varying  NOT NULL,
+    last_update_status character varying  NOT NULL,
+    date_start date,
+    date date,
+    name jsonb NOT NULL,
+    label_tasks jsonb,
+    task_properties_definition jsonb,
+    description text ,
+    active boolean,
+    allow_subtasks boolean,
+    allow_recurring_tasks boolean,
+    allow_task_dependencies boolean,
+    allow_milestones boolean,
+    rating_active boolean,
+    rating_request_deadline timestamp without time zone,
+    create_date timestamp without time zone,
+    write_date timestamp without time zone,
+    CONSTRAINT project_project_pkey PRIMARY KEY (id),
+    CONSTRAINT project_project_alias_id_fkey FOREIGN KEY (alias_id)
+        REFERENCES public.mail_alias (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_analytic_account_id_fkey FOREIGN KEY (analytic_account_id)
+        REFERENCES public.account_analytic_account (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_company_id_fkey FOREIGN KEY (company_id)
+        REFERENCES public.res_company (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_create_uid_fkey FOREIGN KEY (create_uid)
+        REFERENCES public.res_users (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_last_update_id_fkey FOREIGN KEY (last_update_id)
+        REFERENCES public.project_update (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_message_main_attachment_id_fkey FOREIGN KEY (message_main_attachment_id)
+        REFERENCES public.ir_attachment (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_partner_id_fkey FOREIGN KEY (partner_id)
+        REFERENCES public.res_partner (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_stage_id_fkey FOREIGN KEY (stage_id)
+        REFERENCES public.project_project_stage (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_user_id_fkey FOREIGN KEY (user_id)
+        REFERENCES public.res_users (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_write_uid_fkey FOREIGN KEY (write_uid)
+        REFERENCES public.res_users (id) MATCH SIMPLE
+,
+    CONSTRAINT project_project_project_date_greater CHECK (date >= date_start)
+)
+        
+
+===Response Guidelines 
+1. If the provided context is sufficient, please generate a valid SQL query without any explanations for the question. 
+2. If the provided context is almost sufficient but requires knowledge of a specific string in a particular column, please generate an intermediate SQL query to find the distinct strings in that column. Prepend the query with a comment saying intermediate_sql 
+3. If the provided context is insufficient, please explain why it can't be generated. 
+4. Please use the most relevant table(s). 
+5. If the question has been asked and answered before, please repeat the answer exactly as it was given before. 
+6. Ensure that the output SQL is PostgreSQL-compliant and executable, and free of syntax errors. 
+Please return all the results returned from database tables as a table. 
+END OF OVERRIDEN MESSAGE.
+submit_prompt
+EVAL
+sql anch
+SELECT id, team_id FROM public.crm_stage;
+result of run_sql
+The type of the returned results of the run_sql is of type <class 'pandas.core.frame.DataFrame'>
+   id team_id
+0   1    None
+1   2    None
+2   3    None
+3   4    None

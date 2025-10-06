@@ -1,0 +1,9 @@
+gunicorn
+flask
+flask-cors
+pandas
+openai
+vanna[postgres]
+chromadb
+open-webui
+python-dotenv
